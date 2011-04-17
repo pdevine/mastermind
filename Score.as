@@ -22,6 +22,52 @@ package
             setScore(0, 0);
         }
 
+        public static function computeScore(
+            code:Array,
+            guess:Array):Array
+        {
+            var guessCopy:Array = new Array();
+            var codeCopy:Array = new Array();
+
+            var correctPosition:uint = 0;
+            var correctValue:uint = 0;
+
+            var i:uint;
+            var j:uint;
+
+            for(i = 0; i < guess.length; i++)
+            {
+                if(guess[i] == code[i])
+                {
+                    correctPosition++;
+                }
+                else
+                {
+                    guessCopy.push(guess[i]);
+                    codeCopy.push(code[i]);
+                }
+            }
+
+
+            for(i = 0; i < guessCopy.length; i++)
+            {
+                trace("checking for", guessCopy[i]);
+                for(j = 0; j < codeCopy.length; j++)
+                {
+                    trace("looking at", codeCopy[j]);
+                    if(guessCopy[i] == codeCopy[j])
+                    {
+                        correctValue++;
+                        delete codeCopy[i];
+                        break;
+                    }
+                }
+            }
+
+            return [correctPosition, correctValue];
+
+        }
+
         public function setScore(
             correctPosition:uint,
             correctValues:uint):void
@@ -53,12 +99,14 @@ package
 
         private function drawPip(pipValue:uint, position:uint):void
         {
+            var circleRadius:Number = 3;
+            if(pipValue)
+                circleRadius = 5;
+
             graphics.beginFill(COLORS[pipValue]);
             var x:int = POSITIONS[position][0];
             var y:int = POSITIONS[position][1];
-            trace("color=", COLORS[pipValue]);
-            trace("x=", x, "y=", y);
-            graphics.drawCircle(x, y, 3);
+            graphics.drawCircle(x, y, circleRadius);
         }
     }
 }

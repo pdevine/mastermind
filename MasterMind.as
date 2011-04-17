@@ -15,6 +15,8 @@ package
         public var currentRow:uint = 0;
         public var currentValue:uint = 1;
 
+        public var code:Array;
+
         public function MasterMind()
         {
             init();
@@ -24,6 +26,7 @@ package
         private function init():void
         {
             createSelectionBox();
+            createCode();
 
             guesses = new Array();
             scores = new Array();
@@ -38,7 +41,7 @@ package
                 for(var i:int = 0; i < CodeLength; i++)
                 {
                     pip = new Pip();
-                    pip.x = 50 * i + 50;
+                    pip.x = 50 * i + 70;
                     pip.y = j * 40 + 25;
 
                     addChild(pip);
@@ -54,6 +57,15 @@ package
                 scores.push(score);
             }
             setRowActive();
+        }
+
+        private function createCode():void
+        {
+            code = new Array();
+            for(var i:uint = 0; i < CodeLength; i++)
+                code.push(
+                    Math.floor(Math.random() * (Pip.COLORS.length-1)) + 1);
+            trace("code set to", code);
         }
 
         private function createSelectionBox():void
@@ -80,6 +92,7 @@ package
 
             if(currentRow > 0)
             {
+                removeChildAt(0);
                 for(i = 0; i < guesses[currentRow-1].length; i++)
                 {
                     guesses[currentRow-1][i].removeEventListener(
@@ -93,6 +106,20 @@ package
                     MouseEvent.MOUSE_DOWN, onPipClick);
                 
             }
+
+            var rowBox:Sprite = new Sprite();
+
+            rowBox.graphics.beginFill(0xa1bee6);
+//            rowBox.graphics.drawRect(
+//                45,
+//                currentRow * 40 + 5,
+//                50 * CodeLength,
+//                30);
+            rowBox.graphics.drawRect(0, 0, 50 * CodeLength, 30);
+            rowBox.graphics.endFill();
+            rowBox.x = 45;
+            rowBox.y = currentRow * 40 + 10;
+            addChildAt(rowBox, 0);
         }
 
         private function onMouseDown(event:MouseEvent):void
@@ -118,6 +145,13 @@ package
 
             if(guessedRow)
             {
+                var guess:Array = new Array();
+                for(i = 0; i < guesses[currentRow].length; i++)
+                    guess.push(guesses[currentRow][i].value);
+
+                var score:Array = Score.computeScore(guess, code);
+                trace("score = ", score[0], score[1]);
+                scores[currentRow].setScore(score[0], score[1]);
                 currentRow++;
                 setRowActive();
             }
