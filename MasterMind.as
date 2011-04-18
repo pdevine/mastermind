@@ -56,16 +56,25 @@ package
                 guesses.push(row);
                 scores.push(score);
             }
+
             setRowActive();
         }
 
         private function createCode():void
         {
+            trace("Code set to:");
             code = new Array();
             for(var i:uint = 0; i < CodeLength; i++)
-                code.push(
-                    Math.floor(Math.random() * (Pip.COLORS.length-1)) + 1);
-            trace("code set to", code);
+            {
+                var pip:Pip = new Pip(
+                    (Math.floor(Math.random() * (Pip.COLORS.length-1)) + 1),
+                    false);
+                pip.x = 50 * i + 70;
+                pip.y = Rows * 40 + 25;
+                trace(pip.value);
+                addChild(pip);
+                code.push(pip);
+            }
         }
 
         private function createSelectionBox():void
@@ -75,7 +84,7 @@ package
             for(var i:uint = 1; i < Pip.COLORS.length; i++)
             {
 
-                var pip:Pip = new Pip(i);
+                var pip:Pip = new Pip(i, true);
                 pip.x = 10;
                 pip.y = i * 30 + 20;
                 
@@ -110,11 +119,6 @@ package
             var rowBox:Sprite = new Sprite();
 
             rowBox.graphics.beginFill(0xa1bee6);
-//            rowBox.graphics.drawRect(
-//                45,
-//                currentRow * 40 + 5,
-//                50 * CodeLength,
-//                30);
             rowBox.graphics.drawRect(0, 0, 50 * CodeLength, 30);
             rowBox.graphics.endFill();
             rowBox.x = 45;
@@ -146,15 +150,41 @@ package
             if(guessedRow)
             {
                 var guess:Array = new Array();
+                var codeValues:Array = new Array();
+                var guessText:String = new String();
+                var codeText:String = new String();
                 for(i = 0; i < guesses[currentRow].length; i++)
+                {
                     guess.push(guesses[currentRow][i].value);
+                    codeValues.push(code[i].value);
+                    guessText += guess[guess.length-1];
+                    codeText += codeValues[codeValues.length-1];
+                }
 
-                var score:Array = Score.computeScore(guess, code);
+                trace("guess is:", guessText);
+                trace("code is:", codeText);
+
+                var score:Array = Score.computeScore(guess, codeValues);
                 trace("score = ", score[0], score[1]);
                 scores[currentRow].setScore(score[0], score[1]);
-                currentRow++;
-                setRowActive();
+
+                if(score[0] == 4)
+                    gameOver();
+                else
+                {
+                    currentRow++;
+                    if(currentRow == Rows)
+                        gameOver();
+                    else
+                        setRowActive();
+                }
             }
+        }
+
+        private function gameOver():void
+        {
+            for(var i:uint = 0; i < code.length; i++)
+                code[i].showValue = true;
         }
     }
 }

@@ -5,7 +5,8 @@ package
 
     public class Pip extends Sprite
     {
-        public var _value:int = 0;
+        private var _value:int = 0;
+        private var _showValue:Boolean;
 
         public static const COLORS:Array = [
             0x000000,
@@ -26,8 +27,10 @@ package
         public static const INDIGO:uint = 6;
         public static const VIOLET:uint = 7;
 
-        public function Pip(pipValue:uint = 0)
+
+        public function Pip(pipValue:uint = 0, _showValue:Boolean = true)
         {
+            this._showValue = _showValue;
             value = pipValue;
         }
 
@@ -36,25 +39,57 @@ package
             return _value;
         }
 
+        private function drawEmptyPip():void
+        {
+            graphics.clear();
+            graphics.beginFill(0xb0b0b0);
+            graphics.drawCircle(0, 0, 5);
+            graphics.endFill();
+        }
+
+        private function drawColoredPip():void
+        {
+            graphics.clear();
+            graphics.beginFill(COLORS[_value]);
+            graphics.drawCircle(0, 0, 10);
+            graphics.endFill();
+        }
+
+        private function drawX():void
+        {
+            graphics.clear();
+            graphics.lineStyle(1);
+            graphics.beginFill(0x000000);
+            graphics.moveTo(-5, -5);
+            graphics.lineTo(5, 5);
+            graphics.moveTo(-5, 5);
+            graphics.lineTo(5, -5);
+            graphics.endFill();
+        }
+
+        public function set showValue(b:Boolean):void
+        {
+            _showValue = b;
+
+            if(_showValue)
+                drawColoredPip();
+            else
+                drawX();
+        }
+
         public function set value(pipValue:uint):void
         {
             _value = pipValue;
 
-            graphics.clear();
-
             if(!pipValue)
-            {
-                graphics.beginFill(0xb0b0b0);
-                graphics.drawCircle(0, 0, 5);
-                graphics.endFill();
-            }
+                drawEmptyPip();
             else
             {
-                graphics.beginFill(COLORS[pipValue]);
-                graphics.drawCircle(0, 0, 10);
-                graphics.endFill();
+                if(_showValue)
+                    drawColoredPip();
+                else
+                    drawX();
             }
-
         }
 
     }
