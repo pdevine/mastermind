@@ -58,7 +58,8 @@ package
                     if(guessCopy[i] == codeCopy[j])
                     {
                         correctValue++;
-                        delete codeCopy[i];
+                        delete codeCopy[j];
+                        //codeCopy.splice(j, 1);
                         break;
                     }
                 }
