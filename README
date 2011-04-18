@@ -1,0 +1,27 @@
+MasterMind
+----------
+
+Code by Patrick Devine (pdevine@sonic.net)
+
+This is a version of the game "Mastermind" game which I often use as an
+interview question at work.  I chose to use seven colours and four peg holes
+instead of the usualy six/four or eight/five.  There's no real reason for
+choosing that combination other than I just went with colours which matched
+ROYGBIV.  If I'm ever inclined I guess I could go and make that dynamic.
+
+There is an "AI" class which uses brute force to try and break the code
+(which as of this writing is still not hooked up yet).  It works by creating
+the entire problem set and then whittling down the choices with the scoring
+function.  It chooses a guess at random from its list of guesses and then
+calls the scoring function for each remaining guess in its list.  If the
+resultant score is the same, it keeps that guess, otherwise it discards it.
+Doing this it can actually reduce the possible choices fairly quickly,
+and on average can guess the code in about five tries or so.
+
+If you'd like to use the code somewhere, for whatever reason, please feel
+free but make sure you include my name as the original copyright holder.
+Also, a quick note to me would also be appreciated.
+
+Comments and feedback are always welcome:  pdevine@sonic.net
+
+
