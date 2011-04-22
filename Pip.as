@@ -81,6 +81,8 @@ package
         {
             _value = pipValue;
 
+            graphics.clear();
+
             if(!pipValue)
                 drawEmptyPip();
             else

@@ -26,7 +26,12 @@ package
         private function init():void
         {
             createSelectionBox();
-            createCode();
+
+            var resetButton:Reset = new Reset();
+            resetButton.x = 10;
+            resetButton.y = 10;
+            resetButton.addEventListener(MouseEvent.MOUSE_DOWN, onReset);
+            addChild(resetButton);
 
             guesses = new Array();
             scores = new Array();
@@ -57,23 +62,29 @@ package
                 scores.push(score);
             }
 
+            code = new Array();
+
+            for(i = 0; i < CodeLength; i++)
+            {
+                pip = new Pip(0, false);
+                pip.x = 50 * i + 70;
+                pip.y = Rows * 40 + 25;
+                addChild(pip);
+                code.push(pip);
+            }
+
+            createCode();
             setRowActive();
         }
 
         private function createCode():void
         {
             trace("Code set to:");
-            code = new Array();
             for(var i:uint = 0; i < CodeLength; i++)
             {
-                var pip:Pip = new Pip(
-                    (Math.floor(Math.random() * (Pip.COLORS.length-1)) + 1),
-                    false);
-                pip.x = 50 * i + 70;
-                pip.y = Rows * 40 + 25;
-                trace(pip.value);
-                addChild(pip);
-                code.push(pip);
+                code[i].showValue = false;
+                code[i].value = 
+                    Math.floor(Math.random() * (Pip.COLORS.length-1)) + 1;
             }
         }
 
@@ -124,6 +135,28 @@ package
             rowBox.x = 45;
             rowBox.y = currentRow * 40 + 10;
             addChildAt(rowBox, 0);
+        }
+
+        private function onReset(event:MouseEvent):void
+        {
+            trace("reset!");
+            graphics.clear();
+            currentRow = 0;
+            currentValue = 1;
+            for(var r:uint = 0; r < Rows; r++)
+            {
+                for(var c:uint = 0; c < guesses[r].length; c++)
+                {
+                    guesses[r][c].value = 0;
+                }
+                scores[r].setScore(0, 0);
+            }
+
+            createCode();
+
+            // clean up the pip bar
+            removeChildAt(0);
+            setRowActive();
         }
 
         private function onMouseDown(event:MouseEvent):void
