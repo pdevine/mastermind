@@ -33,6 +33,11 @@ package
             resetButton.addEventListener(MouseEvent.MOUSE_DOWN, onReset);
             addChild(resetButton);
 
+            var toggleButton:Toggle = new Toggle();
+            toggleButton.x = 10;
+            toggleButton.y = 290;
+            addChild(toggleButton);
+
             guesses = new Array();
             scores = new Array();
 

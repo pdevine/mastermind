@@ -9,7 +9,7 @@ FLAGS = -static-link-runtime-shared-libraries=true -debug=true -use-network=fals
 %.swf: %.as
 	$(BIN_DIR)/mxmlc $(FLAGS) $<
 
-MasterMind.swf: MasterMind.as Pip.as Score.as Reset.as
+MasterMind.swf: MasterMind.as Pip.as Score.as Reset.as Toggle.as
 	$(BIN_DIR)/mxmlc $(FLAGS) $<
 
 clean:
