@@ -6,16 +6,8 @@ package
 
     public class MasterMind extends Sprite
     {
-        public const Rows:int = 8;
-        public const CodeLength:int = 4;
-
-        public var guesses:Array;
-        public var scores:Array;
-
-        public var currentRow:uint = 0;
-        public var currentValue:uint = 1;
-
-        public var code:Array;
+        public var computer:AI;
+        public var human:Human;
 
         public function MasterMind()
         {
@@ -25,6 +17,13 @@ package
 
         private function init():void
         {
+            var gd:GameData = GameData.getInstance();
+
+            gd.stage = stage;
+
+            computer = new AI();
+            human = new Human();
+
             createSelectionBox();
 
             var resetButton:Reset = new Reset();
@@ -38,17 +37,17 @@ package
             toggleButton.y = 290;
             addChild(toggleButton);
 
-            guesses = new Array();
-            scores = new Array();
+            gd.guesses = new Array();
+            gd.scores = new Array();
 
             var pip:Pip;
             var row:Array;
 
-            for(var j:uint = 0; j < Rows; j++)
+            for(var j:uint = 0; j < gd.rows; j++)
             {
 
                 row = new Array();
-                for(var i:int = 0; i < CodeLength; i++)
+                for(var i:int = 0; i < gd.codeLength; i++)
                 {
                     pip = new Pip();
                     pip.x = 50 * i + 70;
@@ -59,39 +58,35 @@ package
                 }
 
                 var score:Score = new Score();
-                score.x = 50 * CodeLength + 100;
+                score.x = 50 * gd.codeLength + 100;
                 score.y = j * 40 + 25;
                 addChild(score);
 
-                guesses.push(row);
-                scores.push(score);
+                gd.guesses.push(row);
+                gd.scores.push(score);
             }
 
-            code = new Array();
+            gd.code = new Array();
 
-            for(i = 0; i < CodeLength; i++)
+            for(i = 0; i < gd.codeLength; i++)
             {
                 pip = new Pip(0, false);
                 pip.x = 50 * i + 70;
-                pip.y = Rows * 40 + 25;
+                pip.y = gd.rows * 40 + 25;
                 addChild(pip);
-                code.push(pip);
+                gd.code.push(pip);
             }
 
-            createCode();
-            setRowActive();
+            gd.stage.dispatchEvent(new GameEvent(GameEvent.GAME_STARTED));
+            gd.stage.dispatchEvent(new GameEvent(GameEvent.GAME_ROW_CHANGED));
+            gd.stage.addEventListener(
+                GameEvent.GAME_ROW_FINISHED, onRowFinished);
+
+            //createCode();
+            //setRowActive();
+            //setCodeRowActive();
         }
 
-        private function createCode():void
-        {
-            trace("Code set to:");
-            for(var i:uint = 0; i < CodeLength; i++)
-            {
-                code[i].showValue = false;
-                code[i].value = 
-                    Math.floor(Math.random() * (Pip.COLORS.length-1)) + 1;
-            }
-        }
 
         private function createSelectionBox():void
         {
@@ -113,116 +108,99 @@ package
 
         private function setRowActive():void
         {
-            var i:uint = 0;
+            var gd:GameData = GameData.getInstance();
 
-            if(currentRow > 0)
-            {
-                removeChildAt(0);
-                for(i = 0; i < guesses[currentRow-1].length; i++)
-                {
-                    guesses[currentRow-1][i].removeEventListener(
-                        MouseEvent.MOUSE_DOWN, onPipClick)
-                }
-            }
+            stage.dispatchEvent(new GameEvent(GameEvent.GAME_ROW_CHANGED));
 
-            for(i = 0; i < guesses[currentRow].length; i++)
-            {
-                guesses[currentRow][i].addEventListener(
-                    MouseEvent.MOUSE_DOWN, onPipClick);
-                
-            }
+            // XXX - this is silly.  add it to a new class
+            //var rowBox:Sprite = new Sprite();
 
-            var rowBox:Sprite = new Sprite();
-
-            rowBox.graphics.beginFill(0xa1bee6);
-            rowBox.graphics.drawRect(0, 0, 50 * CodeLength, 30);
-            rowBox.graphics.endFill();
-            rowBox.x = 45;
-            rowBox.y = currentRow * 40 + 10;
-            addChildAt(rowBox, 0);
+            //rowBox.graphics.beginFill(0xa1bee6);
+            //rowBox.graphics.drawRect(0, 0, 50 * gd.codeLength, 30);
+            //rowBox.graphics.endFill();
+            //rowBox.x = 45;
+            //rowBox.y = gd.currentRow * 40 + 10;
+            //addChildAt(rowBox, 0);
         }
 
         private function onReset(event:MouseEvent):void
         {
+            var gd:GameData = GameData.getInstance();
+
             trace("reset!");
             graphics.clear();
-            currentRow = 0;
-            currentValue = 1;
-            for(var r:uint = 0; r < Rows; r++)
+            gd.currentRow = 0;
+            gd.currentValue = 1;
+
+            for(var r:uint = 0; r < gd.rows; r++)
             {
-                for(var c:uint = 0; c < guesses[r].length; c++)
+                for(var c:uint = 0; c < gd.guesses[r].length; c++)
                 {
-                    guesses[r][c].value = 0;
+                    gd.guesses[r][c].value = 0;
                 }
-                scores[r].setScore(0, 0);
+                gd.scores[r].setScore(0, 0);
             }
 
-            createCode();
+            stage.dispatchEvent(new GameEvent("gameReset"));
+
+            //createCode();
 
             // clean up the pip bar
-            removeChildAt(0);
-            setRowActive();
+            //setRowActive();
         }
 
         private function onMouseDown(event:MouseEvent):void
         {
-            currentValue = event.target.value;
-            trace("Set value to:", currentValue);
+            var gd:GameData = GameData.getInstance();
+
+            gd.currentValue = event.target.value;
+            trace("Set value to:", gd.currentValue);
         }
 
-        private function onPipClick(event:MouseEvent):void
+
+        private function onRowFinished(event:GameEvent):void
         {
-            event.target.value = currentValue;
+            var gd:GameData = GameData.getInstance();
 
-            var guessedRow:Boolean = true;
-
-            for(var i:uint = 0; i < guesses[currentRow].length; i++)
+            var guess:Array = new Array();
+            var codeValues:Array = new Array();
+            var guessText:String = new String();
+            var codeText:String = new String();
+            for(var i:uint = 0; i < gd.guesses[gd.currentRow].length; i++)
             {
-                if(!guesses[currentRow][i].value)
-                {
-                    guessedRow = false;
-                    break;
-                }
+                guess.push(gd.guesses[gd.currentRow][i].value);
+                codeValues.push(gd.code[i].value);
+                guessText += guess[guess.length-1];
+                codeText += codeValues[codeValues.length-1];
             }
 
-            if(guessedRow)
+            trace("guess is:", guessText);
+            trace("code is:", codeText);
+
+            var score:Array = Score.computeScore(guess, codeValues);
+            trace("score = ", score[0], score[1]);
+            gd.scores[gd.currentRow].setScore(score[0], score[1]);
+
+            if(score[0] == 4)
+                gameOver();
+            else
             {
-                var guess:Array = new Array();
-                var codeValues:Array = new Array();
-                var guessText:String = new String();
-                var codeText:String = new String();
-                for(i = 0; i < guesses[currentRow].length; i++)
-                {
-                    guess.push(guesses[currentRow][i].value);
-                    codeValues.push(code[i].value);
-                    guessText += guess[guess.length-1];
-                    codeText += codeValues[codeValues.length-1];
-                }
-
-                trace("guess is:", guessText);
-                trace("code is:", codeText);
-
-                var score:Array = Score.computeScore(guess, codeValues);
-                trace("score = ", score[0], score[1]);
-                scores[currentRow].setScore(score[0], score[1]);
-
-                if(score[0] == 4)
+                gd.currentRow++;
+                if(gd.currentRow == gd.rows)
                     gameOver();
                 else
-                {
-                    currentRow++;
-                    if(currentRow == Rows)
-                        gameOver();
-                    else
-                        setRowActive();
-                }
+                    setRowActive();
             }
         }
 
         private function gameOver():void
         {
-            for(var i:uint = 0; i < code.length; i++)
-                code[i].showValue = true;
+            var gd:GameData = GameData.getInstance();
+
+            for(var i:uint = 0; i < gd.code.length; i++)
+                gd.code[i].showValue = true;
+
+            stage.dispatchEvent(new GameEvent("gameOver"));
         }
     }
 }

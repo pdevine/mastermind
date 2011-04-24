@@ -6,7 +6,22 @@ package
 
         public function AI()
         {
-            createGuesses();
+            var gd:GameData = GameData.getInstance();
+            gd.stage.addEventListener(GameEvent.GAME_STARTED, createCode);
+        }
+
+        public static function createCode(event:GameEvent):void
+        {
+            var gd:GameData = GameData.getInstance();
+
+            trace("Code set to:");
+            for(var i:uint = 0; i < gd.codeLength; i++)
+            {
+                gd.code[i].showValue = false;
+                gd.code[i].value =
+                    Math.floor(Math.random() * (Pip.COLORS.length-1)) + 1;
+            }
+
         }
 
         public function createGuesses():void
@@ -14,10 +29,10 @@ package
             guesses = new Array();
 
             // XXX - make this take an arbitrary number of columns
-            for(var a:uint = 1; i < Pip.COLORS.length; i++)
-                for(var b:uint = 1; i < Pip.COLORS.length; i++)
-                    for(var c:uint = 1; i < Pip.COLORS.length; i++)
-                        for(var d:uint = 1; i < Pip.COLORS.length; i++)
+            for(var a:uint = 1; a < Pip.COLORS.length; a++)
+                for(var b:uint = 1; b < Pip.COLORS.length; b++)
+                    for(var c:uint = 1; c < Pip.COLORS.length; c++)
+                        for(var d:uint = 1; d < Pip.COLORS.length; d++)
                             guesses.push([a, b, c, d]);
         }
 
