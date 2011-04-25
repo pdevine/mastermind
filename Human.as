@@ -7,8 +7,15 @@ package
         public function Human()
         {
             var gd:GameData = GameData.getInstance();
+            gd.stage.addEventListener(GameEvent.GAME_RESET, onGameReset);
             gd.stage.addEventListener(GameEvent.GAME_ROW_CHANGED, onRowChange);
-            
+            gd.stage.addEventListener(
+                GameEvent.GAME_ROW_FINISHED, onRowFinished);
+        }
+
+        private function onGameReset(event:GameEvent):void
+        {
+            onRowChange(event);
         }
 
         private function setCodeRowActive():void
@@ -26,22 +33,21 @@ package
         {
             var gd:GameData = GameData.getInstance();
 
-            var i:uint = 0;
-
-            if(gd.currentRow > 0)
-            {
-                for(i = 0; i < gd.guesses[gd.currentRow-1].length; i++)
-                {
-                    gd.guesses[gd.currentRow-1][i].removeEventListener(
-                        MouseEvent.MOUSE_DOWN, onPipClick)
-                }
-            }
-
-            for(i = 0; i < gd.guesses[gd.currentRow].length; i++)
+            for(var i:uint = 0; i < gd.guesses[gd.currentRow].length; i++)
             {
                 gd.guesses[gd.currentRow][i].addEventListener(
                     MouseEvent.MOUSE_DOWN, onPipClick);
+            }
+        }
 
+        private function onRowFinished(event:GameEvent):void
+        {
+            var gd:GameData = GameData.getInstance();
+
+            for(var i:uint = 0; i < gd.guesses[gd.currentRow].length; i++)
+            {
+                gd.guesses[gd.currentRow][i].removeEventListener(
+                    MouseEvent.MOUSE_DOWN, onPipClick)
             }
         }
 

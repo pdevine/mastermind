@@ -9,6 +9,8 @@ package
         public var computer:AI;
         public var human:Human;
 
+        private var rowBox:Sprite;
+
         public function MasterMind()
         {
             init();
@@ -82,9 +84,9 @@ package
             gd.stage.addEventListener(
                 GameEvent.GAME_ROW_FINISHED, onRowFinished);
 
-            //createCode();
-            //setRowActive();
-            //setCodeRowActive();
+            rowBox = new RowBox();
+            addChildAt(rowBox, 0);
+
         }
 
 
@@ -112,15 +114,6 @@ package
 
             stage.dispatchEvent(new GameEvent(GameEvent.GAME_ROW_CHANGED));
 
-            // XXX - this is silly.  add it to a new class
-            //var rowBox:Sprite = new Sprite();
-
-            //rowBox.graphics.beginFill(0xa1bee6);
-            //rowBox.graphics.drawRect(0, 0, 50 * gd.codeLength, 30);
-            //rowBox.graphics.endFill();
-            //rowBox.x = 45;
-            //rowBox.y = gd.currentRow * 40 + 10;
-            //addChildAt(rowBox, 0);
         }
 
         private function onReset(event:MouseEvent):void
@@ -141,12 +134,7 @@ package
                 gd.scores[r].setScore(0, 0);
             }
 
-            stage.dispatchEvent(new GameEvent("gameReset"));
-
-            //createCode();
-
-            // clean up the pip bar
-            //setRowActive();
+            stage.dispatchEvent(new GameEvent(GameEvent.GAME_RESET));
         }
 
         private function onMouseDown(event:MouseEvent):void

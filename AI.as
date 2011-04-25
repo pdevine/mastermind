@@ -7,10 +7,21 @@ package
         public function AI()
         {
             var gd:GameData = GameData.getInstance();
-            gd.stage.addEventListener(GameEvent.GAME_STARTED, createCode);
+            gd.stage.addEventListener(GameEvent.GAME_STARTED, onGameStarted);
+            gd.stage.addEventListener(GameEvent.GAME_RESET, onGameReset);
         }
 
-        public static function createCode(event:GameEvent):void
+        private function onGameStarted(event:GameEvent):void
+        {
+            createCode();
+        }
+
+        private function onGameReset(event:GameEvent):void
+        {
+            createCode();
+        }
+
+        public static function createCode():void
         {
             var gd:GameData = GameData.getInstance();
 
