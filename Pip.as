@@ -58,6 +58,11 @@ package
         private function drawX():void
         {
             graphics.clear();
+
+            graphics.beginFill(0xffffff);
+            graphics.drawRect(-5, -5, 10, 10);
+            graphics.endFill();
+
             graphics.lineStyle(1);
             graphics.beginFill(0x000000);
             graphics.moveTo(-5, -5);

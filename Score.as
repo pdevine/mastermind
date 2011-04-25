@@ -17,6 +17,9 @@ package
             [ 8,  8]
         ];
 
+        public var correctPosition:uint = 0;
+        public var correctValues:uint = 0;
+
         public function Score()
         {
             setScore(0, 0);
@@ -73,6 +76,9 @@ package
             correctPosition:uint,
             correctValues:uint):void
         {
+            this.correctPosition = correctPosition;
+            this.correctValues = correctValues;
+
             graphics.clear();
             var pipCount:uint = 0;
 

@@ -7,15 +7,28 @@ package
         public function Human()
         {
             var gd:GameData = GameData.getInstance();
+            gd.stage.addEventListener(GameEvent.GAME_STARTED, onGameStarted);
             gd.stage.addEventListener(GameEvent.GAME_RESET, onGameReset);
-            gd.stage.addEventListener(GameEvent.GAME_ROW_CHANGED, onRowChange);
-            gd.stage.addEventListener(
-                GameEvent.GAME_ROW_FINISHED, onRowFinished);
+        }
+
+        private function onGameStarted(event:GameEvent):void
+        {
+            onGameReset(event);
         }
 
         private function onGameReset(event:GameEvent):void
         {
-            onRowChange(event);
+            var gd:GameData = GameData.getInstance();
+
+            if(gd.player == GameData.PLAYER_HUMAN)
+            {
+                gd.stage.addEventListener(
+                    GameEvent.GAME_ROW_CHANGED, onRowChange);
+                onRowChange(event);
+            }
+            else
+                setCodeRowActive();
+
         }
 
         private function setCodeRowActive():void
@@ -38,6 +51,9 @@ package
                 gd.guesses[gd.currentRow][i].addEventListener(
                     MouseEvent.MOUSE_DOWN, onPipClick);
             }
+
+            gd.stage.addEventListener(
+                GameEvent.GAME_ROW_FINISHED, onRowFinished);
         }
 
         private function onRowFinished(event:GameEvent):void
@@ -49,6 +65,9 @@ package
                 gd.guesses[gd.currentRow][i].removeEventListener(
                     MouseEvent.MOUSE_DOWN, onPipClick)
             }
+
+            gd.stage.removeEventListener(
+                GameEvent.GAME_ROW_FINISHED, onRowFinished);
         }
 
         private function onPipClick(event:MouseEvent):void
@@ -101,6 +120,8 @@ package
                         onCodeClick);
                 }
 
+                gd.stage.dispatchEvent(
+                    new GameEvent(GameEvent.GAME_CODE_SET));
 
             }
         }

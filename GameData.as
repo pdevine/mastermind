@@ -8,6 +8,11 @@ package
         private static var instance:GameData;
         private static var allowInstantiation:Boolean;
 
+        public static const PLAYER_HUMAN:uint = 0;
+        public static const PLAYER_COMPUTER:uint = 1;
+
+        public var player:uint;
+
         public var guesses:Array;
         public var scores:Array;
         public var code:Array;

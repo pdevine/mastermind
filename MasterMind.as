@@ -23,6 +23,8 @@ package
 
             gd.stage = stage;
 
+            gd.player = GameData.PLAYER_COMPUTER;
+
             computer = new AI();
             human = new Human();
 
@@ -133,6 +135,9 @@ package
                 }
                 gd.scores[r].setScore(0, 0);
             }
+
+            for(c = 0; c < gd.code.length; c++)
+                gd.code[c].value = 0;
 
             stage.dispatchEvent(new GameEvent(GameEvent.GAME_RESET));
         }
