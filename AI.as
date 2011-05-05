@@ -24,7 +24,13 @@ package
             var gd:GameData = GameData.getInstance();
 
             if(gd.player == GameData.PLAYER_HUMAN)
+            {
                 createCode();
+                gd.stage.removeEventListener(
+                    GameEvent.GAME_CODE_SET, onCodeSet);
+                gd.stage.removeEventListener(
+                    GameEvent.GAME_ROW_CHANGED, onRowChanged);
+            }
             else
             {
                 createGuesses();

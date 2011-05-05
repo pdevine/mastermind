@@ -6,9 +6,14 @@ package
     {
         public function Toggle()
         {
-            var toggled:Boolean = true;
+            player = GameData.PLAYER_HUMAN;
+        }
 
-            if(toggled)
+        public function set player(playerType:uint):void
+        {
+            graphics.clear();
+
+            if(playerType == GameData.PLAYER_HUMAN)
             {
                 drawPerson(0x000000, 0xffffff);
                 drawComputer(0xffffff, 0x000000);
@@ -18,7 +23,7 @@ package
                 drawPerson(0xffffff, 0x000000);
                 drawComputer(0x000000, 0xffffff);
             }
-
+            
         }
 
         public function drawPerson(bgColor:int, fgColor:int):void

@@ -40,6 +40,8 @@ package
             toggleButton.y = 295;
             addChild(toggleButton);
 
+            toggleButton.addEventListener(MouseEvent.MOUSE_DOWN, onToggle);
+
             gd.guesses = new Array();
             gd.scores = new Array();
 
@@ -117,6 +119,21 @@ package
 
         }
 
+        private function onToggle(event:MouseEvent):void
+        {
+            trace("toggle!");
+            var gd:GameData = GameData.getInstance();
+            if(gd.player == GameData.PLAYER_HUMAN)
+                gd.player = GameData.PLAYER_COMPUTER;
+            else
+                gd.player = GameData.PLAYER_HUMAN;
+
+            event.target.player = gd.player;
+           
+            onReset(event);
+
+        }
+
         private function onReset(event:MouseEvent):void
         {
             var gd:GameData = GameData.getInstance();
@@ -138,7 +155,7 @@ package
             for(c = 0; c < gd.code.length; c++)
                 gd.code[c].value = 0;
 
-            stage.dispatchEvent(new GameEvent(GameEvent.GAME_RESET));
+            gd.stage.dispatchEvent(new GameEvent(GameEvent.GAME_RESET));
         }
 
         private function onMouseDown(event:MouseEvent):void
