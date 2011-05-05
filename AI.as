@@ -61,6 +61,7 @@ package
 
         private function onCodeSet(event:GameEvent):void
         {
+            trace("AI: onCodeSet");
             var gd:GameData = GameData.getInstance();
 
             gd.stage.addEventListener(
@@ -73,6 +74,7 @@ package
 
         private function onRowChanged(event:GameEvent):void
         {
+            trace("AI: onRowChanged");
             var gd:GameData = GameData.getInstance();
 
             if(gd.currentRow > 0)

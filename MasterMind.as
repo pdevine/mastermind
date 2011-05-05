@@ -22,8 +22,7 @@ package
             var gd:GameData = GameData.getInstance();
 
             gd.stage = stage;
-
-            gd.player = GameData.PLAYER_COMPUTER;
+            gd.player = GameData.PLAYER_HUMAN;
 
             computer = new AI();
             human = new Human();
@@ -31,14 +30,14 @@ package
             createSelectionBox();
 
             var resetButton:Reset = new Reset();
-            resetButton.x = 10;
-            resetButton.y = 10;
+            resetButton.x = 20;
+            resetButton.y = 15;
             resetButton.addEventListener(MouseEvent.MOUSE_DOWN, onReset);
             addChild(resetButton);
 
             var toggleButton:Toggle = new Toggle();
-            toggleButton.x = 10;
-            toggleButton.y = 290;
+            toggleButton.x = 20;
+            toggleButton.y = 295;
             addChild(toggleButton);
 
             gd.guesses = new Array();
@@ -100,8 +99,8 @@ package
             {
 
                 var pip:Pip = new Pip(i, true);
-                pip.x = 10;
-                pip.y = i * 30 + 20;
+                pip.x = 20;
+                pip.y = i * 30 + 25;
                 
                 pip.addEventListener(MouseEvent.MOUSE_DOWN, onMouseDown);
                 addChild(pip);
@@ -153,6 +152,7 @@ package
 
         private function onRowFinished(event:GameEvent):void
         {
+            trace("MM: onRowFinished");
             var gd:GameData = GameData.getInstance();
 
             var guess:Array = new Array();
@@ -179,6 +179,7 @@ package
             else
             {
                 gd.currentRow++;
+                trace("Row is now:", gd.currentRow);
                 if(gd.currentRow == gd.rows)
                     gameOver();
                 else

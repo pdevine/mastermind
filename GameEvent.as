@@ -6,7 +6,7 @@ package
     {
         public static const GAME_STARTED:String = "gameStarted";
         public static const GAME_RESET:String = "gameReset";
-        public static const GAME_ROW_FINISHED:String = "gameRowEntered";
+        public static const GAME_ROW_FINISHED:String = "gameRowFinished";
         public static const GAME_ROW_CHANGED:String = "gameRowChanged";
         public static const GAME_CODE_SET:String = "gameCodeSet";
 
