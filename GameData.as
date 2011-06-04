@@ -13,6 +13,8 @@ package
 
         public var player:uint;
 
+        public var pips:Array;
+
         public var guesses:Array;
         public var scores:Array;
         public var code:Array;

@@ -7,6 +7,7 @@ package
     {
         private var _value:int = 0;
         private var _showValue:Boolean;
+        private var _selected:Boolean = false;
 
         public static const COLORS:Array = [
             0x000000,
@@ -53,6 +54,12 @@ package
             graphics.beginFill(COLORS[_value]);
             graphics.drawCircle(0, 0, 10);
             graphics.endFill();
+
+            if(_selected)
+            {
+                graphics.lineStyle(1);
+                graphics.drawCircle(0, 0, 10);
+            }
         }
 
         private function drawX():void
@@ -99,6 +106,11 @@ package
             }
         }
 
+        public function set selected(b:Boolean):void
+        {
+            _selected = b;
+            drawColoredPip();
+        }
     }
 
 }

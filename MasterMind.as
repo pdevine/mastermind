@@ -95,7 +95,10 @@ package
 
         private function createSelectionBox():void
         {
+            var gd:GameData = GameData.getInstance();
             var y:Number = 20;
+
+            gd.pips = new Array();
 
             for(var i:uint = 1; i < Pip.COLORS.length; i++)
             {
@@ -105,10 +108,12 @@ package
                 pip.y = i * 30 + 25;
                 
                 pip.addEventListener(MouseEvent.MOUSE_DOWN, onMouseDown);
+                gd.pips.push(pip);
                 addChild(pip);
-                
             }
-            
+
+            gd.currentValue = 1;
+            gd.pips[gd.currentValue-1].selected = true;
         }
 
         private function setRowActive():void
@@ -155,12 +160,22 @@ package
             for(c = 0; c < gd.code.length; c++)
                 gd.code[c].value = 0;
 
+            for(var i:uint = 0; i < gd.pips.length; i++)
+                gd.pips[i].selected = false;
+
+            gd.pips[gd.currentValue-1].selected = true;
+
             gd.stage.dispatchEvent(new GameEvent(GameEvent.GAME_RESET));
         }
 
         private function onMouseDown(event:MouseEvent):void
         {
             var gd:GameData = GameData.getInstance();
+
+            for(var i:uint = 0; i < gd.pips.length; i++)
+                gd.pips[i].selected = false;
+
+            event.target.selected = true;
 
             gd.currentValue = event.target.value;
             trace("Set value to:", gd.currentValue);
