@@ -9,6 +9,7 @@ package
         private var _showValue:Boolean;
         private var _selected:Boolean = false;
 
+/*
         public static const COLORS:Array = [
             0x000000,
             0xff0000,
@@ -18,6 +19,18 @@ package
             0x0000ff,
             0x4b0082,
             0xae8ceb
+        ];
+*/
+
+        public static const COLORS:Array = [
+            0xecd078,
+            0xd95b43,
+            0xc02942,
+            0x542437,
+            0x53777a,
+            0x9ead6a,
+            0xe3933c,
+            0xce30c3,
         ];
 
         public static const RED:uint = 1;
