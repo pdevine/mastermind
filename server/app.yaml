@@ -5,5 +5,9 @@ api_version: 1
 threadsafe: true
 
 handlers:
+- url: /crossdomain.xml
+  static_files: crossdomain.xml
+  upload: crossdomain\.xml
+
 - url: /.*
   script: mm.app

@@ -21,7 +21,7 @@ class GameError(Exception):
     def __str__(self):
         return repr(self.value)
 
-class Score:
+class Score(object):
     def __init__(self):
         self.correct_positions = 0
         self.correct_colors = 0
@@ -89,6 +89,7 @@ class Game(object):
         if None in guess:
             raise GameError(ERROR_INCOMPLETE_GUESS)
 
+        # XXX - need to check the code is of type list or tuple
         if len(guess) != self.pips_per_row:
             raise GameError(ERROR_WRONG_ELEMENT_COUNT % 
                             (len(guess), self.pips_per_row))
@@ -140,10 +141,10 @@ class Game(object):
         if None not in self._current_row:
             self.row = list(self._current_row)
 
-    def score_row(self):
-        new_score = Score()
-
-        new.score_guess(self.code, self.current_row)
+#    def score_row(self):
+#        new_score = Score()
+#
+#        new.score_guess(self.code, self.current_row)
 
     def get_code(self):
         return self._code
@@ -155,6 +156,7 @@ class Game(object):
         if self._game_state != GAME_INITIALIZED:
             raise GameError(ERROR_GAME_STARTED)
 
+        # XXX - need to check the code is of type list or tuple
         if len(code) != self.pips_per_row:
             raise GameError(ERROR_WRONG_ELEMENT_COUNT % 
                             (len(code), self.pips_per_row))
@@ -179,6 +181,8 @@ class Game(object):
 
 
     def get_last_row(self):
+        if not self.rows:
+            return []
         return self.rows[-1]
 
     last_row = property(get_last_row)
@@ -204,14 +208,14 @@ class Game(object):
     def get_color_range(self):
         return self._color_range
 
-    def set_color_range(self, range):
+    def set_color_range(self, c_range):
         if self._game_state == GAME_OVER:
             raise GameError(ERROR_GAME_OVER)
 
         if self._game_state != GAME_INITIALIZED:
             raise GameError(ERROR_GAME_STARTED)
 
-        self._color_range = list(range)
+        self._color_range = list(c_range)
 
     color_range = property(get_color_range, set_color_range)
 
@@ -243,9 +247,13 @@ class Game(object):
     total_rows = property(get_total_rows, set_total_rows)
 
     def serialize(self):
-        return json.dumps(self.__dict__)
+        return json.dumps(self.__dict__, default=mungeObj)
 
     def deserialize(self, data):
         # XXX - may want to protect the game here from improper deserialization
         self.__dict__ = json.loads(data)
+
+def mungeObj(myObj):
+    '''Return a string representation of an obj when TypeError is thrown'''
+    return repr(myObj)
 
