@@ -1,6 +1,7 @@
 package
 {
     import flash.display.Stage;
+    import starling.display.Stage;
 
     public class GameData
     {
@@ -25,7 +26,8 @@ package
         public var rows:uint = 8;
         public var codeLength:uint = 4;
 
-        public var stage:Stage;
+        public var stage:starling.display.Stage;
+        public var nativeStage:flash.display.Stage;
 
         public static function getInstance():GameData
         {

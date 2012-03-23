@@ -22,9 +22,13 @@ package
         public var netConnection:NetConnection;
         public var responder:Responder;
 
-        public function Menu(myStage:Stage):void
+        public var gd:GameData;
+
+        public function Menu():void
         {
-            Component.initStage(myStage);
+            gd = GameData.getInstance();
+
+            Component.initStage(gd.nativeStage);
 
             netConnection = new NetConnection();
             netConnection.connect("http://192.168.137.156:8080");
@@ -51,6 +55,8 @@ package
         public function onClick(event:MouseEvent):void
         {
             trace("I'm clicked!");
+            gd.nativeStage.dispatchEvent(
+                new GameEvent(GameEvent.GAME_SELECTED));
         }
 
         public function onComplete(results):void
