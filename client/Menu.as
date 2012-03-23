@@ -19,7 +19,7 @@ package
         public var pushButton:PushButton;
         public var gameList:List;
 
-        public var netConnection:NetConnection;
+        //public var netConnection:NetConnection;
         public var responder:Responder;
 
         public var gd:GameData;
@@ -30,8 +30,8 @@ package
 
             Component.initStage(gd.nativeStage);
 
-            netConnection = new NetConnection();
-            netConnection.connect("http://192.168.137.156:8080");
+            //netConnection = new NetConnection();
+            //netConnection.connect("http://192.168.137.156:8080");
 
 
             var xml:XML = <comps>
@@ -47,7 +47,7 @@ package
             config.parseXML(xml);
 
             responder = new Responder(onComplete, onFail);
-            netConnection.call("mastermind.listGames", responder);
+            gd.netConnection.call("mastermind.listGames", responder);
 
             pushButton.addEventListener(MouseEvent.CLICK, onClick);
         }

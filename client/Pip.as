@@ -15,6 +15,8 @@ package
         protected var _position:Vector2D;
         protected var _velocity:Vector2D;
 
+        public var destination:Vector2D;
+
         public static const WRAP:String = "wrap";
         public static const BOUNCE:String = "bounce";
 
@@ -44,6 +46,8 @@ package
 
             _position = new Vector2D();
             _velocity = new Vector2D();
+
+            destination = null;
         }
         
         private function drawEmptyPip():void
@@ -93,16 +97,24 @@ package
 
             // can this be transparent?
             pip.graphics.beginFill(0xffffff);
-            pip.graphics.drawRect(-5, -5, 10, 10);
+            pip.graphics.drawRect(0, 0, 20, 20);
             pip.graphics.endFill();
 
-            pip.graphics.lineStyle(1);
+            pip.graphics.lineStyle(2);
             pip.graphics.beginFill(0x000000);
-            pip.graphics.moveTo(-5, -5);
-            pip.graphics.lineTo(5, 5);
-            pip.graphics.moveTo(-5, 5);
-            pip.graphics.lineTo(5, -5);
+            pip.graphics.moveTo(0, 0);
+            pip.graphics.lineTo(20, 20);
+            pip.graphics.moveTo(0, 20);
+            pip.graphics.lineTo(20, 0);
             pip.graphics.endFill();
+
+            var bmd:BitmapData = new BitmapData(20, 20, true, 0x00000000);
+            bmd.draw(pip);
+
+            var texture:Texture = Texture.fromBitmapData(bmd, false, false);
+            var image:Image = new Image(texture);
+
+            addChild(image);
         }
 
         public function set showValue(b:Boolean):void

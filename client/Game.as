@@ -9,6 +9,7 @@ package
     import flash.text.TextField;
     import flash.events.Event;
     import flash.events.MouseEvent;
+    import flash.net.NetConnection;
 
     import com.bit101.components.Component;
     import com.bit101.components.List;
@@ -22,6 +23,8 @@ package
 
     public class Game extends Sprite
     {
+        public const VPIXELBUF:uint = 20;
+
         private var _pip:MovingPip;
         private var _pips:Array;
 
@@ -47,7 +50,7 @@ package
             gd.stage = stage;
             gd.nativeStage = Starling.current.nativeStage;
 
-            for(var i:int = 0; i < 50; i++)
+            for(var i:int = 0; i < 60; i++)
             {
                 _pip = new MovingPip();
                 _pip.position = new Vector2D(
@@ -61,6 +64,9 @@ package
                 _pips.push(_pip);
             }
 
+            gd.netConnection = new NetConnection();
+            gd.netConnection.connect("http://192.168.137.159:8080");
+
             var myMenu:Menu = new Menu();
             gd.nativeStage.addChild(myMenu);
 
@@ -73,11 +79,10 @@ package
         {
             for(var i:int = 0; i < _pips.length; i++)
             {
-                //_pips[i].flock(_pips);
-                if(wander)
-                    _pips[i].wander();
+                if(_pips[i].destination)
+                    _pips[i].arrive(_pips[i].destination);
                 else
-                    _pips[i].arrive(new Vector2D(300, 300));
+                    _pips[i].wander();
 
                 _pips[i].update();
             }
@@ -86,7 +91,47 @@ package
         private function onGameSelected(event:GameEvent):void
         {
             trace("game selected!");
-            wander = !wander;
+
+            gd.guesses = new Array();
+            gd.scores = new Array();
+            gd.code = new Array();
+
+            var _pip_count:uint = 0;
+            var row:Array;
+
+            trace("stage height: ");
+            trace(gd.stage.stageHeight);
+
+            var vSpacing:uint = 
+                (gd.stage.stageHeight - VPIXELBUF) / (gd._total_rows + 1);
+
+            for(var j:int = 0; j < gd._total_rows; j++)
+            {
+                row = new Array();
+                for(var i:int = 0; i < gd._pips_per_row; i++)
+                {
+                    _pips[_pip_count].destination = 
+                        new Vector2D(
+                            50 * i + 250,
+                            j * vSpacing + VPIXELBUF);
+                    _pip_count++;
+                    row.push(_pips[_pip_count]);
+                }
+                gd.guesses.push(row);
+            }
+
+            for(j = 0; j < gd._pips_per_row; j++)
+            {
+                _pips[_pip_count].destination =
+                    new Vector2D(
+                        50 * j + 250,
+                        gd._total_rows * vSpacing + VPIXELBUF);
+                _pips[_pip_count].showValue = false;
+                _pip_count++;
+                gd.code.push(_pips[_pip_count]);
+            }
+
+            //wander = !wander;
         }
 
     }

@@ -3,6 +3,8 @@ package
     import flash.display.Stage;
     import starling.display.Stage;
 
+    import flash.net.NetConnection;
+
     public class GameData
     {
 
@@ -20,14 +22,18 @@ package
         public var scores:Array;
         public var code:Array;
 
-        public var currentRow:uint = 0;
-        public var currentValue:uint = 1;
+        public var _currentRow:Array = [null, null, null, null, null];
+        public var _pips_per_row:uint = 5;
+        public var _selected_color:uint = 0;
+        public var _game_state:String = "initialized";
+        public var _color_range:Array = [1, 2, 3, 4, 5, 6, 7, 8];
+        public var _total_rows:uint = 10;
 
-        public var rows:uint = 8;
-        public var codeLength:uint = 4;
+        public var netConnection:NetConnection;
 
         public var stage:starling.display.Stage;
         public var nativeStage:flash.display.Stage;
+
 
         public static function getInstance():GameData
         {
