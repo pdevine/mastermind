@@ -5,7 +5,7 @@ Code by Patrick Devine (pdevine@sonic.net)
 
 This is a version of the game "Mastermind" game which I often use as an
 interview question at work.  I chose to use seven colours and four peg holes
-instead of the usualy six/four or eight/five.  There's no real reason for
+instead of the usually six/four or eight/five.  There's no real reason for
 choosing that combination other than I just went with colours which matched
 ROYGBIV.  If I'm ever inclined I guess I could go and make that dynamic.
 
