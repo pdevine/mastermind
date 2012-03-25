@@ -22,7 +22,10 @@ package
         public var scores:Array;
         public var code:Array;
 
-        public var _currentRow:Array = [null, null, null, null, null];
+        public var currentRow:uint = 0;
+        public var currentValue:uint = 1;
+
+        public var currentRowValues:Array = [null, null, null, null, null];
         public var _pips_per_row:uint = 5;
         public var _selected_color:uint = 0;
         public var _game_state:String = "initialized";

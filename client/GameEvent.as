@@ -1,8 +1,8 @@
 package
 {
-    import flash.events.Event;
+    import starling.events.Event;
 
-    public class GameEvent extends flash.events.Event
+    public class GameEvent extends starling.events.Event
     {
         public static const GAME_STARTED:String = "gameStarted";
         public static const GAME_RESET:String = "gameReset";
