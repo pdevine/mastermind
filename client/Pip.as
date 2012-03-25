@@ -19,6 +19,7 @@ package
 
         public static const WRAP:String = "wrap";
         public static const BOUNCE:String = "bounce";
+        public static const IGNORE:String = "ignore";
 
         public static const COLORS:Array = [
             0xecd078,
@@ -31,7 +32,7 @@ package
             0xce30c3,
         ];
 
-        private var _pipValue:int = 0;
+        public var _pipValue:int = 0;
         private var _showValue:Boolean;
         private var _selected:Boolean = false;
 

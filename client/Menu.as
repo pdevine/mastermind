@@ -55,7 +55,7 @@ package
         public function onClick(event:MouseEvent):void
         {
             trace("I'm clicked!");
-            gd.nativeStage.dispatchEvent(
+            gd.stage.dispatchEvent(
                 new GameEvent(GameEvent.GAME_SELECTED));
         }
 
