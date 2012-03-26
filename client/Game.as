@@ -28,6 +28,8 @@ package
         private var gd:GameData;
         private var localPlayer:LocalPlayer;
 
+        private var rowBox:Sprite;
+
         public function Game ()
         {
             gd = GameData.getInstance();
@@ -111,7 +113,7 @@ package
             gd.scores = new Array();
             gd.code = new Array();
 
-            var _pip_count:uint = 0;
+            var pip_count:uint = 0;
             var row:Array;
 
             // determine if we need to add/remove any balls
@@ -122,8 +124,6 @@ package
             trace("stage height: ");
             trace(gd.stage.stageHeight);
 
-            var vSpacing:uint = 
-                (gd.stage.stageHeight - VPIXELBUF) / (gd._total_rows + 1);
 
             // assign a location for each of our pips
             for(var j:int = 0; j < gd._total_rows; j++)
@@ -131,46 +131,61 @@ package
                 row = new Array();
                 for(var i:int = 0; i < gd._pips_per_row; i++)
                 {
-                    gd.pips[_pip_count].destination = 
+                    gd.pips[pip_count].destination = 
                         new Vector2D(
                             50 * i + 250,
-                            j * vSpacing + VPIXELBUF);
-                    _pip_count++;
-                    row.push(gd.pips[_pip_count]);
+                            j * vSpacing() + VPIXELBUF);
+                    row.push(gd.pips[pip_count]);
+                    pip_count++;
                 }
                 gd.guesses.push(row);
             }
 
             // Add in the code pips
 
-            var _pip:MovingPip;
+            var pip:MovingPip;
 
             for(j = 0; j < gd._pips_per_row; j++)
             {
-                _pip = new MovingPip();
-                _pip.showValue = false;
-                _pip.edgeBehavior = Pip.IGNORE;
+                pip = new MovingPip();
+                pip.showValue = false;
+                pip.edgeBehavior = Pip.IGNORE;
                 
-                _pip.position =
+                pip.position =
                     new Vector2D(
                         50 * j + 250,
                         stage.stageHeight + 200 + (j * 70))
 
-                _pip.destination =
+                pip.destination =
                     new Vector2D(
                         50 * j + 250,
-                        gd._total_rows * vSpacing + VPIXELBUF);
+                        gd._total_rows * vSpacing() + VPIXELBUF);
 
-                addChild(_pip);
-                gd.pips.push(_pip);
-                gd.code.push(_pip);
+                addChild(pip);
+                gd.pips.push(pip);
+                gd.code.push(pip);
 
             }
 
             gd.stage.dispatchEvent(new GameEvent(GameEvent.GAME_STARTED));
             gd.stage.dispatchEvent(new GameEvent(GameEvent.GAME_ROW_CHANGED));
+            gd.stage.addEventListener(
+                GameEvent.GAME_ROW_FINISHED, onRowFinished);
+
+            rowBox = new RowBox(0xa1bee6, vSpacing());
+            addChildAt(rowBox, 0);
         }
 
+        public function vSpacing():int
+        {
+            return (gd.stage.stageHeight - VPIXELBUF) / (gd._total_rows + 1);
+        }
+
+        private function onRowFinished(event:GameEvent):void
+        {
+            gd.currentRow++;
+            gd.stage.dispatchEvent(new GameEvent(GameEvent.GAME_ROW_CHANGED));
+        }
     }
 }
 

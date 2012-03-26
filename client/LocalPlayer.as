@@ -69,6 +69,7 @@ package
                         TouchEvent.TOUCH, onPipClick);
                 }
 
+                trace("finished row");
                 gd.stage.dispatchEvent(
                     new GameEvent(GameEvent.GAME_ROW_FINISHED));
             }

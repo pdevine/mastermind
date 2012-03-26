@@ -32,13 +32,13 @@ package
             0xce30c3,
         ];
 
-        public var _pipValue:int = 0;
+        private var _pipValue:int = 0;
         private var _showValue:Boolean;
         private var _selected:Boolean = false;
 
         private static const EMPTY_COLOR:uint = 0xb0b0b0;
-        private static const EMPTY_RADIUS:uint = 10;
-        private static const COLORED_RADIUS:uint = 10;
+        private static const EMPTY_RADIUS:uint = 7;
+        private static const COLORED_RADIUS:uint = 12;
 
         public function Pip(pipValue:uint=0, _showValue:Boolean=true)
         {
@@ -56,12 +56,12 @@ package
             var pip:flash.display.Sprite = new flash.display.Sprite();
 
             pip.graphics.beginFill(EMPTY_COLOR);
-            pip.graphics.drawCircle(EMPTY_RADIUS, EMPTY_RADIUS, EMPTY_RADIUS);
+            pip.graphics.drawCircle(16, 16, EMPTY_RADIUS);
             pip.graphics.endFill();
 
             var bmd:BitmapData = new BitmapData(
-                    EMPTY_RADIUS*2,
-                    EMPTY_RADIUS*2,
+                    16*2,
+                    16*2,
                     true, 0x00000000);
             bmd.draw(pip);
 
@@ -94,22 +94,25 @@ package
         {
             var pip:flash.display.Sprite = new flash.display.Sprite();
 
+            // clean up anything which was displayed before
+            removeChildAt(0);
+
             pip.graphics.clear();
 
             // can this be transparent?
-            pip.graphics.beginFill(0xffffff);
-            pip.graphics.drawRect(0, 0, 20, 20);
-            pip.graphics.endFill();
+            //pip.graphics.beginFill(0xffffff);
+            //pip.graphics.drawRect(0, 0, 20, 20);
+            //pip.graphics.endFill();
 
             pip.graphics.lineStyle(2);
             pip.graphics.beginFill(0x000000);
-            pip.graphics.moveTo(0, 0);
-            pip.graphics.lineTo(20, 20);
-            pip.graphics.moveTo(0, 20);
-            pip.graphics.lineTo(20, 0);
+            pip.graphics.moveTo(6, 6);
+            pip.graphics.lineTo(26, 26);
+            pip.graphics.moveTo(6, 26);
+            pip.graphics.lineTo(26, 6);
             pip.graphics.endFill();
 
-            var bmd:BitmapData = new BitmapData(20, 20, true, 0x00000000);
+            var bmd:BitmapData = new BitmapData(32, 32, true, 0x00000000);
             bmd.draw(pip);
 
             var texture:Texture = Texture.fromBitmapData(bmd, false, false);
