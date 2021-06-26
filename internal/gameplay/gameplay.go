@@ -7,6 +7,7 @@ import (
 	"bufio"
 	"strconv"
 	"strings"
+	"encoding/json"
 
 	"github.com/google/uuid"
 	log "github.com/sirupsen/logrus"
@@ -17,9 +18,11 @@ var players []*Player
 var games map[string]*Game
 
 type Player struct {
-	Conn  net.Conn
-	Game  *Game
-	Color int
+	Conn   net.Conn
+	Game   *Game
+	Name   string
+	Color  int
+	PipBuf []int
 }
 
 const (
@@ -49,6 +52,27 @@ func NewPlayer(c net.Conn) *Player {
 	return p
 }
 
+type ReturnData struct {
+	Type        int    `json: type`
+	Message     string `json: msg`
+	PlayerName  string `json: player, omitempty`
+	Pip         int    `json: pip, omitempty`
+	Color       int    `json: color, omitempty`
+	Score       []int  `json: score, omitempty`
+	GameID      string `json: game_id, omitempty`
+}
+
+const (
+	RETURN_MESSAGE = iota
+	RETURN_NEWGAME
+	RETURN_GAMEOVER
+	RETURN_GAMEJOINED
+	RETURN_GAMESTARTED
+	RETURN_ERROR
+	RETURN_SCORE
+	RETURN_PIPSET
+	RETURN_COLORSET
+)
 
 func Listen() {
 	l, err := net.Listen("tcp", "localhost:8080")
@@ -101,6 +125,8 @@ func (p *Player) handleConnection() {
 				p.SetSecret(convertArgs(cmd[1]))
 			} else if cmd[0] == "/setcolor" {
 				p.SetColor(convertArgs(cmd[1]))
+			} else if cmd[0] == "/setpip" {
+				p.SetPip(convertArgs(cmd[1]))
 			}
 		}
 
@@ -134,28 +160,89 @@ func convertArgs(arg string) []int {
 	return vals
 }
 
+func sendMessage(to, from *Player, msg string) {
+	d := ReturnData{
+		Type:    RETURN_MESSAGE,
+		Message: msg,
+	}
+	if from != nil {
+		d.PlayerName = from.Name
+	}
+	json.NewEncoder(to.Conn).Encode(d)
+}
+
+func (g *Game) sendData(d ReturnData) {
+	for _, player := range []*Player{g.Player1, g.Player2} {
+		if player != nil {
+			json.NewEncoder(player.Conn).Encode(d)
+		}
+	}
+}
+
+func sendError(p *Player, msg string) {
+	d := ReturnData{
+		Type:    RETURN_ERROR,
+		Message: msg,
+	}
+	json.NewEncoder(p.Conn).Encode(d)
+}
+
 func (p *Player) SetPip(v []int) {
 	if len(v) == 0 {
-		p.Conn.Write([]byte("No pip specified\n"))
+		sendError(p, "No pip specified")
 		return
 	}
 	if v[0] < 0 || v[0] >= board.PipCount {
-		p.Conn.Write([]byte("Invalid pip specified\n"))
+		sendError(p, "Invalid pip specified")
 		return
+	}
+	if p == p.Game.CodeBreaker && p.Game.State == GAME_RUNNING {
+		score, err := p.Game.Board.SetPip(v[0], p.Color)
+		var d ReturnData
+		d = ReturnData{
+			Type:    RETURN_PIPSET,
+			Message: fmt.Sprintf("Pip %d set to value %d", v[0], p.Color),
+			Pip:     v[0],
+			Color:   p.Color,
+		}
+		p.Game.sendData(d)
+
+		if err == nil {
+			d = ReturnData{
+				Type:    RETURN_SCORE,
+				Message: fmt.Sprintf("Score: (%d, %d)", score.Red, score.White),
+				Score:   []int{score.Red, score.White},
+			}
+			p.Game.sendData(d)
+			if score.Red == 4 {
+				p.Game.State = GAME_OVER
+				d = ReturnData{
+					Type:    RETURN_GAMEOVER,
+					Message: "The code was cracked!",
+				}
+				p.Game.sendData(d)
+			}
+		}
 	}
 }
 
 func (p *Player) SetColor(v []int) {
 	if len(v) == 0 {
-		p.Conn.Write([]byte("No color specified\n"))
+		sendError(p, "No color specified")
 		return
 	}
 	if v[0] < 0 || v[0] >= board.MaxColors {
-		p.Conn.Write([]byte("Invalid color specified\n"))
+		sendError(p, "Invalid color specified")
 		return
 	}
 
 	p.Color = v[0]
+	d := ReturnData{
+		Type:    RETURN_COLORSET,
+		Message: fmt.Sprintf("Color set to %d", p.Color),
+		Color:   p.Color,
+	}
+	p.Game.sendData(d)
 }
 
 
@@ -183,7 +270,12 @@ func (p *Player) NewGame() {
 	p.Game = g
 	games[g.ID] = g
 
-	p.Conn.Write([]byte(fmt.Sprintf("New Game %s started\n", g.ID)))
+	d := ReturnData{
+		Type:    RETURN_NEWGAME,
+		Message: fmt.Sprintf("New game %s started", u),
+		GameID:  u.String(),
+	}
+	p.Game.sendData(d)
 }
 
 func (p *Player) DisplayBoard() {
@@ -193,7 +285,7 @@ func (p *Player) DisplayBoard() {
 		b, _ := p.Game.Board.GetBoard()
 		p.Conn.Write(b)
 	} else {
-		p.Conn.Write([]byte("Player hasn't joined a game\n"))
+		sendError(p, "Player hasn't joined a game")
 	}
 }
 
@@ -201,57 +293,58 @@ func (p *Player) JoinGame(u string) {
 	log.Infof("uuid = '%s'", u)
 	g, ok := games[u]
 	if !ok {
-		p.Conn.Write([]byte(fmt.Sprintf("Game %s not found\n", u)))
+		sendError(p, fmt.Sprintf("Game %s not found", u))
 		return
 	}
 
 	if g.Player2 != nil {
-		p.Conn.Write([]byte(fmt.Sprintf("Game %s is full\n", u)))
+		sendError(p, fmt.Sprintf("Game %s is full", u))
 		return
 	}
 
 	g.Player2 = p
 	p.Game = g
 
-	p.Conn.Write([]byte(fmt.Sprintf("Joined game %s\n", u)))
-	g.Player1.Conn.Write([]byte("Player joined game\n"))
+	d := ReturnData{
+		Type:    RETURN_GAMEJOINED,
+		Message: fmt.Sprintf("Player joined game"),
+		GameID:  u,
+	}
+	g.sendData(d)
 }
 
 func (p *Player) SetSecret(s []int) {
 	if p.Game.State == GAME_RUNNING {
-		p.Conn.Write([]byte("Game has already started\n"))
+		sendError(p, "Game has already started")
 		return
 	} else if p.Game.State == GAME_OVER {
-		p.Conn.Write([]byte("Game has already finished\n"))
+		sendError(p, "Game has already finished")
 		return
 	}
 
 	err := p.Game.Board.SetSecret(s)
 	if err != nil {
-		p.Conn.Write([]byte("Couldn't set the secret\n"))
+		sendError(p, "Couldn't set the secret")
 		return
 	}
 
 	if p.Game.Player1 == nil || p.Game.Player2 == nil {
-		p.Conn.Write([]byte("Wait for another player before setting the secret\n"))
+		sendError(p, "Wait for another player before setting the secret")
 		return
 	}
 
 	log.Infof("Started game '%s'", p.Game.ID)
+	if p.Game.Player1 == p {
+		p.Game.CodeBreaker = p.Game.Player2
+	} else {
+		p.Game.CodeBreaker = p.Game.Player1
+	}
+
 	p.Game.State = GAME_RUNNING
 
-	for _, player := range []*Player{p.Game.Player1, p.Game.Player2} {
-		player.Conn.Write([]byte("Secret set. Game started\n"))
-		if player != p {
-			p.Game.CodeBreaker = player
-			player.Conn.Write([]byte("Guess the code!\n"))
-		}
+	d := ReturnData{
+		Type:    RETURN_GAMESTARTED,
+		Message: "Secret set. Game started",
 	}
-
-}
-
-func (p *Player) SetPip(pip, color int) {
-	// XXX - need to be able to choose who does code setting / breaking
-	if p.Game.Player2 == p && p.Game.State == GAME_INIT {
-	}
+	p.Game.sendData(d)
 }

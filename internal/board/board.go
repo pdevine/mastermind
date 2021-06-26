@@ -52,13 +52,9 @@ func (b *Board) CheckSecretSet() bool {
 }
 
 func (b *Board) SetSecret(secret []int) error {
-	if len(secret) != PipCount {
-		return errors.New("Secret must be four values")
-	}
-	for cnt := 0; cnt < PipCount; cnt++ {
-		if secret[cnt] < 1 || secret[cnt] > MaxColors {
-			return fmt.Errorf("Secret values should be between 1 and %d", MaxColors)
-		}
+	err := checkCodeValid(secret)
+	if err != nil {
+		return err
 	}
 	b.secret = secret
 	return nil
@@ -76,6 +72,46 @@ func (b *Board) SetRandomSecret() {
 	}
 	fmt.Printf("Secret is: %+v\n", b.secret)
 
+}
+
+func checkCodeValid(code []int) error {
+	if len(code) != PipCount {
+		return errors.New("Code must be four values")
+	}
+	for cnt := 0; cnt < PipCount; cnt++ {
+		if code[cnt] < 1 || code[cnt] > MaxColors {
+			return fmt.Errorf("Code values should be between 1 and %d", MaxColors)
+		}
+	}
+	return nil
+}
+
+func (b *Board) MakeGuess() (Score, error) {
+	code := b.Rows[b.CurrentRow].Pips
+	err := checkCodeValid(code)
+	if err != nil {
+		return Score{}, err
+	}
+	if b.CurrentRow >= len(b.Rows) {
+		return Score{}, fmt.Errorf("Too many guesses")
+	}
+	score := b.CheckScore(code)
+	b.Rows[b.CurrentRow].Score = score
+	b.CurrentRow++
+	return score, nil
+}
+
+
+func (b *Board) SetPip(p, v int) (Score, error) {
+	// XXX - check row pointer
+	if p < 0 && p >= PipCount {
+		return Score{}, fmt.Errorf("Pip value should be between 0 and %d", PipCount)
+	}
+	b.Rows[b.CurrentRow].Pips[p] = v
+	if checkCodeValid(b.Rows[b.CurrentRow].Pips) == nil {
+		return b.MakeGuess()
+	}
+	return Score{}, errors.New("Not enough pips")
 }
 
 func CheckScore(guess, secret []int) Score {
